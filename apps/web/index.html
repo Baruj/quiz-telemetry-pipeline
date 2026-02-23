@@ -1,0 +1,103 @@
+
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title>quiz-telemetry-pipeline</title>
+<style>
+body {font-family: Arial, sans-serif; margin: 24px; }
+button { margin: 4px 6px 4px 0; }
+.picked { font-weight: bold; }
+.saved {color: green; font-size: 12px; margin-left: 8px; }
+</style>
+	</head>
+<body>
+	<h1> Quiz About Data Engineering </h1>
+	<div id="app">Cargando...</div>
+
+<script>
+const API = "http://localhost:8000";
+
+async function main() {
+	const app = document.getElementById("app");
+
+	const quizzes = await (await fetch(`${API}/quizzes`)).json();
+	if (!quizzes.items.length) { app.textContent = "There is no quizzes. Run the seed."; return; }
+	const q = quizzes.items[0];
+	app.innerHTML = `
+	  <h2>${q.title}</h2>
+	  <p>${q.description || ""}</p>
+	  <input id="username" placeholder="Your name (optional)"/>
+	  <button id="start">Start</button>
+	  <div id="quiz"></div>
+	`;
+
+	document.getElementById("start").onclick = async () => {
+	  const username = document.getElementById("username").value.trim() || null;
+
+	  const attempt = await (await fetch(`${API}/attempts`, {
+	    method: "POST",
+	    headers:{"Content-Type":"application/json"},
+	    body: JSON.stringify({ quiz_id: q.quiz_id, username })
+	  })).json();
+
+		const data = await (await fetch(`${API}/quizzes/${q.quiz_id}/questions`)).json();
+		renderQuiz(attempt.attempt_id, data.questions);
+	};
+}
+
+function renderQuiz(attemptId, questions) {
+  const div = document.getElementById("quiz");
+  div.innerHTML = "";
+
+  questions.forEach((qq, i) => {
+    const block = document.createElement("div");
+    block.style.marginBottom = "16px";
+
+    const title = document.createElement("p");
+    title.innerHTML = `<b>${i+1}.</b> ${qq.prompt}`;
+    block.appendChild(title);
+
+    const status = document.createElement("span");
+    status.className = "saved";
+    block.appendChild(status);
+
+    qq.options.forEach((opt, idx) => {
+      const btn = document.createElement("button");
+      btn.textContent = opt;
+
+      btn.onclick = async () => {
+        // send the answer
+        await fetch(`${API}/attempts/${attemptId}/answers`, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ question_id: qq.question_id, chosen_index: idx })
+        });
+
+        // UI feedback: mark the selection and disable the rest
+        [...block.querySelectorAll("button")].forEach(b => b.disabled = true);
+        btn.classList.add("picked");
+        status.textContent = "Saved ✓";
+      };
+
+      block.appendChild(btn);
+    });
+
+    div.appendChild(block);
+  });
+
+  const submit = document.createElement("button");
+  submit.textContent = "Send";
+  submit.onclick = async () => {
+    const res = await (await fetch(`${API}/attempts/${attemptId}/submit`, { method:"POST" })).json();
+    alert(`Score: ${res.score}/${res.max_score}`);
+  };
+
+  div.appendChild(document.createElement("hr"));
+  div.appendChild(submit);
+}
+
+main();
+</script>
+</body>
+</html>
