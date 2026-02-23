@@ -1,0 +1,33 @@
+services:
+  db:
+    build:
+      context: ..
+      dockerfile: infra/db/Dockerfile
+    environment:
+      POSTGRES_USER: quiz
+      POSTGRES_PASSWORD: quiz
+      POSTGRES_DB: quizops
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quiz -d quizops -h localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  api:
+    build:
+      context: ../apps/api
+    environment:
+      DATABASE_URL: postgresql+psycopg2://quiz:quiz@db:5432/quizops
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ../apps/api:/app
+
+volumes:
+  db_data:
