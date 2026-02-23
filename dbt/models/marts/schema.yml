@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: fact_attempt
+    columns:
+      - name: attempt_id
+        tests: [not_null, unique]
+      - name: quiz_id
+        tests: [not_null]
+
+  - name: fact_answer
+    columns:
+      - name: attempt_id
+        tests: [not_null]
+      - name: question_id
+        tests: [not_null]

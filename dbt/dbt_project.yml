@@ -1,0 +1,13 @@
+name: quizops
+version: "1.0"
+profile: quizops
+
+model-paths: ["models"]
+
+models:
+  quizops:
+    +materialized: view
+    staging:
+      +schema: staging
+    marts:
+      +schema: marts

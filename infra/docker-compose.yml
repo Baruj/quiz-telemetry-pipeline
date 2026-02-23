@@ -31,5 +31,16 @@ services:
       - ../scripts:/scripts:ro
       - ../data:/data:ro
 
+  dbt:
+    image: ghcr.io/dbt-labs/dbt-postgres:1.8.2
+    working_dir: /dbt
+    volumes:
+      - ../dbt:/dbt
+    environment:
+      DBT_PROFILES_DIR: /dbt
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   db_data:

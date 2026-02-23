@@ -1,0 +1,11 @@
+quizops:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: db
+      user: quiz
+      password: quiz
+      port: 5432
+      dbname: quizops
+      schema: analytics
