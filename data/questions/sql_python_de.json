@@ -1,0 +1,20 @@
+{
+	"title": "SQL + Python + Data Engineering Basics",
+	"description": "Mini quiz para practicar fundamentos de Data Engineering.",
+	"questions": [
+	  {
+	    "prompt": "¿Qué hace un LEFT JOIN cuando no hay match en la tabla derecha?",
+	    "options": ["Elimina la fila", "Rellena con NULLs", "Duplica filas", "Lanza error"],
+	    "correct_index": 1,
+	    "topic": "SQL",
+	    "difficulty": 1
+	  },
+	  {
+	    "prompt": "¿Cuál es una propiedad clave de un pipeline idempotente?",
+	    "options": ["Corre solo de noche", "Mismo input -> mismo output sin duplicar", "Siempre es streaming", "Usa indices"],
+	    "correct_index": 1,
+	    "topic": "Data Engineering",
+	    "difficulty": 2
+	  }
+	]
+}

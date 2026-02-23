@@ -28,6 +28,8 @@ services:
         condition: service_healthy
     volumes:
       - ../apps/api:/app
+      - ../scripts:/scripts:ro
+      - ../data:/data:ro
 
 volumes:
   db_data:
