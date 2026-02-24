@@ -30,7 +30,6 @@ jobs:
       DB_PASSWORD: quiz
       DB_PORT: "5432"
       DB_NAME: quizops
-      DBT_PROFILES_DIR: ./dbt
       DATABASE_URL: postgresql+psycopg2://quiz:quiz@localhost:5432/quizops
 
     steps:
@@ -56,7 +55,7 @@ jobs:
 
       - name: Run pytest
         env:
-          PYTHONPATH: apps/api
+          PYTHONPATH: .
         run: |
           pytest -q
 
@@ -66,12 +65,12 @@ jobs:
 
       - name: dbt debug
         run: |
-          dbt debug
+          dbt debug --project-dir dbt --profiles-dir dbt
 
       - name: dbt run
         run: |
-          dbt run
+          dbt run --project-dir dbt --profiles-dir dbt
 
       - name: dbt test
         run: |
-          dbt test
+          dbt test --project-dir dbt --profiles-dir dbt
