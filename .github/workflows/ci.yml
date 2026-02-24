@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  test-and-dbt:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: quiz
+          POSTGRES_PASSWORD: quiz
+          POSTGRES_DB: quizops
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U quiz -d quizops"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DB_HOST: localhost
+      DB_USER: quiz
+      DB_PASSWORD: quiz
+      DB_PORT: "5432"
+      DB_NAME: quizops
+      DBT_PROFILES_DIR: ./dbt
+      DATABASE_URL: postgresql+psycopg2://quiz:quiz@localhost:5432/quizops
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install API deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r apps/api/requirements.txt
+          pip install -r apps/api/requirements-dev.txt
+
+      - name: Init DB schema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+          PGPASSWORD=quiz psql -h localhost -U quiz -d quizops -f scripts/init.sql
+
+      - name: Run pytest
+        env:
+          PYTHONPATH: apps/api
+        run: |
+          pytest -q
+
+      - name: Install dbt-postgres
+        run: |
+          pip install "dbt-postgres==1.8.2"
+
+      - name: dbt debug
+        run: |
+          dbt debug
+
+      - name: dbt run
+        run: |
+          dbt run
+
+      - name: dbt test
+        run: |
+          dbt test

@@ -3,9 +3,9 @@ quizops:
   outputs:
     dev:
       type: postgres
-      host: db
-      user: quiz
-      password: quiz
-      port: 5432
-      dbname: quizops
+      host: "{{ env_var('DB_HOST', 'db') }}"
+      user: "{{ env_var('DB_USER', 'quiz') }}"
+      password: "{{ env_var('DB_PASSWORD', 'quiz') }}"
+      port: "{{ env_var('DB_PORT', '5432') | int }}"
+      dbname: "{{ env_var('DB_NAME', 'quizops') }}"
       schema: analytics
