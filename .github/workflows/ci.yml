@@ -55,7 +55,7 @@ jobs:
 
       - name: Run pytest
         env:
-          PYTHONPATH: .
+          PYTHONPATH: apps/api
         run: |
           pytest -q
 
