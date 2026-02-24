@@ -53,6 +53,7 @@ La idea es tener un “pipeline de punta a punta” pequeño pero realista: inge
 │  └─ init.sql              # schema inicial (tablas + índices)
 └─ tests/
    └─ test_health.py        # smoke test del endpoint /health
+```
 
 ---
 
